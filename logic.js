@@ -11,7 +11,7 @@ function logic(players, tilePosition, availableTiles, tiles, history) {
 
   // console.log(players, tilePosition, availableTiles, tiles, history)
 
-  // return availableTiles[0]
+  // return availableTiles[2]
   return availableTiles[Math.floor(Math.random() * 3)]
 
 }

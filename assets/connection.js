@@ -66,7 +66,7 @@ Connection.prototype = {
 
   handleRequestSimulatedGamesSuccess: function (payload) {
     this.state.simulatedGame = localSimulation.simulate(this.state.info, payload)
-    this.ui.updateSimulateButton()
+    // this.ui.updateSimulateButton()
     this.ui.renderSimulatedGame()
   }
 }

@@ -83,6 +83,7 @@ Graph.prototype = {
   },
 
   createCanvas: function () {
+    this.elements.root.innerHTML = ''
     this.elements.canvas = document.createElement('canvas')
     this.ctx = this.elements.canvas.getContext('2d')
     this.scaleCanvas()
@@ -104,7 +105,13 @@ Graph.prototype = {
   },
 
   drawMouseLine: function(event) {
-    if(event.screenX >= 100 && event.screenX <= this.settings.container.width - 100) {
+    var isWithinGraph =
+      event.screenX >= 100 &&
+      event.screenX <= this.settings.container.width - 100 &&
+      event.screenY >= 100 &&
+      event.screenY <= this.settings.container.height
+
+    if(isWithinGraph) {
       var roundedPosX = Math.floor(event.screenX / this.step) * this.step
       var round = Math.ceil((roundedPosX - 100) / this.step)
 
