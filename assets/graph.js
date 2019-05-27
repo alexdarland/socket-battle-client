@@ -1,6 +1,6 @@
-var Graph = function (rootElementId, model) {
+var Graph = function (rootElement, model) {
   this.elements = {
-    root: document.getElementById(rootElementId),
+    root: rootElement,
     canvas: null
   }
   this.settings = {
@@ -177,6 +177,14 @@ Graph.prototype = {
         this.ctx.fillStyle = '#333'
         var teamName = this.model.players[tile.playerIndex].info.teamName
         this.ctx.fillText(teamName, posX + (tileWidth / 2), posY + (tileHeight - 5));
+
+        if(tile.error) {
+          this.ctx.beginPath();
+          this.ctx.fillStyle = 'red'
+          this.ctx.fillRect(posX + 15, posY + (tileHeight / 2) - 10, tileWidth - 30, 20)
+          this.ctx.fillStyle = '#fff'
+          this.ctx.fillText('ERROR', posX + (tileWidth / 2), posY + (tileHeight / 2) + 6);
+        }
       }
     }
   },

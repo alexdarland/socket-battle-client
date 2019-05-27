@@ -9,9 +9,10 @@ var UI = function (state, requestSimulatedGames) {
     scoreBoard: document.getElementById('score-board'),
     controls: document.getElementById('controls'),
     rounds: document.getElementById('rounds'),
-    simulateButton: document.getElementById('simulate-button')
+    simulateButton: document.getElementById('simulate-button'),
+    graph: document.getElementById('graph')
   }
-
+  this.graph = null
   this.elements.simulateButton.addEventListener('click', requestSimulatedGames)
 }
 
@@ -105,7 +106,12 @@ UI.prototype = {
   },
 
   renderSimulatedGame: function () {
-    new Graph('graph', this.state.simulatedGame)
+    this.graph = new Graph(this.elements.graph, this.state.simulatedGame)
+  },
+
+  clearGraph: function() {
+    this.graph = null
+    this.elements.graph.innerHTML = ''
   },
 
   updateSimulateButton: function () {

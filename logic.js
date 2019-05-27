@@ -11,8 +11,22 @@ function logic(players, tilePosition, availableTiles, tiles, history) {
 
   // console.log(players, tilePosition, availableTiles, tiles, history)
 
-  // return availableTiles[2]
-  return availableTiles[Math.floor(Math.random() * 3)]
+  var betterOptionForAggressive = tiles[0].value > tiles[4].value || tiles[2].value > tiles[4].value
+
+  return betterOptionForAggressive && tiles[4].value > tiles[6].value ? 4 : tiles[6].value > tiles[8].value ? 6 : 8
+
+  // return availableTiles[Math.floor(Math.random() * 3)]
 
 }
 
+function overrideAI1() {
+
+}
+
+function overrideAI2() {
+
+}
+
+function overrideAI3() {
+
+}

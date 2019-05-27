@@ -58,6 +58,7 @@ Connection.prototype = {
 
   startGame: function (payload) {
     console.log(payload)
+    this.ui.clearGraph()
   },
 
   requestSimulatedGames: function () {

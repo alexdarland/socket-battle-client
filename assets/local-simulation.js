@@ -14,8 +14,16 @@ localSimulation.simulate = function (playerInfo, payload) {
       }
     }
 
-    var tileIndex = logic(payload.players, 8, [4, 6, 8], publicRound, publicHistory)
-    payload.history[i][tileIndex].claims.push(3)
+    var tilePosition = 7
+    var availableTiles = [4, 6, 8]
+    var tileIndex = logic(payload.players, tilePosition, availableTiles, publicRound, publicHistory)
+
+    if(availableTiles.indexOf(tileIndex) !== -1) {
+      payload.history[i][tileIndex].claims.push(3)
+    } else {
+      payload.history[i][tilePosition].error = true
+    }
+
     publicHistory.push(payload.history[i])
   }
 
@@ -46,5 +54,6 @@ localSimulation.evaluateGame = function (payload) {
       }
     }
   }
+
   return payload
 }

@@ -4,9 +4,9 @@ Welcome to the socket battle client! It's quick and easy to get up and running.
 
 ## Getting started
 1. Download this repository from Github
-2. Fill in info in the credentials.js file.
-2. Add your logic in the index.js file where there are comments
-3. Open up your index.html to test
+2. Fill in your teams details in the info.js file.
+2. Build your algorithm in the logic.js file
+3. Open up your index.html and click simulate to test your code
 
 ## How to play
 The game consists of a 3x3 board with 4 players standing around the middle tiles on each side.
