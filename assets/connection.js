@@ -14,7 +14,7 @@ const Connection = function () {
   this.socket.on('register_user_success', this.handleRegisterUserSuccess.bind(this));
   this.socket.on('game_updated', this.handleGameUpdated.bind(this));
   this.socket.on('start_game', this.startGame.bind(this));
-  this.socket.on('request_simulated_game_success', this.handleRequestSimulatedGamesSuccess.bind(this));
+  this.socket.on('request_simulated_game_success', this.handleRequestSimulatedGameSuccess.bind(this));
 
   this.setId = this.setId.bind(this)
 
@@ -35,7 +35,6 @@ Connection.prototype = {
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   },
-
 
   setId: function () {
     var existingId = localStorage.getItem('persistent-key')
@@ -88,8 +87,7 @@ Connection.prototype = {
     this.socket.emit('request_simulated_game')
   },
 
-  handleRequestSimulatedGamesSuccess: function (payload) {
-    console.log('handleRequestSimulatedGamesSuccess', payload)
+  handleRequestSimulatedGameSuccess: function (payload) {
     this.state.simulatedGame = localSimulation.simulate(this.state.info, payload)
     this.ui.renderSimulatedGame()
   }

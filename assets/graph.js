@@ -105,7 +105,6 @@ Graph.prototype = {
   },
 
   drawMouseLine: function(event) {
-    console.log(event)
     var isWithinGraph =
       event.clientX >= 100 &&
       event.clientX <= this.settings.container.width - 100 &&
