@@ -3,6 +3,7 @@ var UI = function (state, requestSimulatedGames) {
   this.elements = {
     connectionStatus: document.getElementById('connection-status'),
     infoTeamName: document.getElementById('info-team-name'),
+    infoTeamSocket: document.getElementById('info-team-socket'),
     infoTeamMembers: document.getElementById('info-team-members'),
     gameStatus: document.getElementById('game-status'),
     gameBoard: document.getElementById('game-board'),
@@ -98,6 +99,7 @@ UI.prototype = {
     if(!this.state.info) return
 
     this.elements.infoTeamName.innerHTML = this.state.info.teamName
+    this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socket
     this.elements.infoTeamMembers.innerHTML = ''
 
     for(var i=0; i < this.state.info.authors.length; i++) {
