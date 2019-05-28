@@ -4,7 +4,8 @@ const Connection = function () {
     connected: false,
     info: null,
     game: null,
-    simulatedGame: null
+    simulatedGame: null,
+    isDebug: true
   }
 
   this.socket = io('http://alex-mbp.local')
@@ -13,7 +14,7 @@ const Connection = function () {
   this.socket.on('register_user_success', this.handleRegisterUserSuccess.bind(this));
   this.socket.on('game_updated', this.handleGameUpdated.bind(this));
   this.socket.on('start_game', this.startGame.bind(this));
-  this.socket.on('request_simulated_games_success', this.handleRequestSimulatedGamesSuccess.bind(this));
+  this.socket.on('request_simulated_game_success', this.handleRequestSimulatedGamesSuccess.bind(this));
 
   this.setId = this.setId.bind(this)
 
@@ -43,6 +44,7 @@ Connection.prototype = {
     } else {
       var newPersistentId = this.generateId()
       localStorage.setItem('persistent-key', newPersistentId)
+      info.id = newPersistentId
     }
   },
 
@@ -59,12 +61,12 @@ Connection.prototype = {
   },
 
   handleRegisterUserSuccess: function (payload) {
-    console.log('register user sucess', payload)
-    this.state.info = payload
+    this.state.info = payload.user
+    this.state.isDebug = payload.isDebug
     this.ui.updateInfo()
 
-    if(this.state.info.isDebug) {
-      this.socket.emit('request_debug_data')
+    if(this.state.isDebug) {
+      this.socket.emit('request_simulated_game')
     } else {
       this.socket.emit('request_game')
     }
@@ -72,29 +74,23 @@ Connection.prototype = {
 
   handleGameUpdated: function (payload) {
     this.state.game = payload
-    this.ui.updateGame()
-  },
-
-  requestMove: function (payload) {
-    this.socket.emit('request_move', payload)
-  },
-
-  requestNextRound: function () {
-    this.socket.emit('request_next_round')
   },
 
   startGame: function (payload) {
-    console.log(payload)
+    this.state.isDebug = payload.isDebug
+    this.state.simulatedGame = null
     this.ui.clearGraph()
+    this.ui.updateSimulateButton()
+    this.ui.updateGameStatus()
   },
 
   requestSimulatedGames: function () {
-    this.socket.emit('request_simulated_games')
+    this.socket.emit('request_simulated_game')
   },
 
   handleRequestSimulatedGamesSuccess: function (payload) {
+    console.log('handleRequestSimulatedGamesSuccess', payload)
     this.state.simulatedGame = localSimulation.simulate(this.state.info, payload)
-    // this.ui.updateSimulateButton()
     this.ui.renderSimulatedGame()
   }
 }

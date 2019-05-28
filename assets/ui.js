@@ -41,65 +41,18 @@ UI.prototype = {
   },
 
   updateGameStatus: function() {
-    if(this.state.connected) {
-      this.elements.gameStatus.classList.add('game-status--playing')
-    } else {
+    if(this.state.isDebug) {
       this.elements.gameStatus.classList.remove('game-status--testing')
-    }
-  },
-
-  updateGame: function() {
-    this.updateScoreBoard()
-    this.updateBoard()
-    this.updateRounds()
-    console.log(this.state)
-  },
-
-  updateScoreBoard: function() {
-    this.elements.scoreBoard.innerHTML = ''
-    
-    for(var i=0; i < this.state.game.players.length; i++) {
-      var player = this.state.game.players[i]
-      this.elements.scoreBoard.innerHTML += '<li><span>' + player.info.teamName + '</span> <span>' + player.score + '</span></li>'
-    }
-  },
-
-  updateBoard: function() {
-    this.elements.gameBoard.innerHTML = ''
-
-    for(var i=0; i < this.state.game.tiles.length; i++) {
-      this.elements.gameBoard.appendChild(this.createTile(this.state.game.tiles[i]))
-    }
-  },
-
-  createTile: function(tileData) {
-    var tile = document.createElement('div')
-    tile.classList.add('game-board__tile')
-    tile.setAttribute('data-tile-number', tileData.id)
-
-    if(tileData.type === 'coins') {
-      tile.innerHTML = tileData.value
     } else {
-      tile.innerHTML = '<img src="assets/img/player.png"/><span>' + this.state.game.players[tileData.playerIndex].info.teamName + '</span>'
-      if(tileData.faultyMove) {
-        tile.classList.add('game-board__tile--faulty-move')
-      } else if(tileData.claimedTile) {
-        setTimeout(function () {
-          tile.classList.add('game-board__tile--move-' + tileData.direction)
-        }, 10)
-      } else if(tileData.direction) {
-        tile.classList.add('game-board__tile--bounce-' + tileData.direction)
-      }
+      this.elements.gameStatus.classList.add('game-status--playing')
     }
-
-    return tile
   },
 
   updateInfo: function () {
     if(!this.state.info) return
 
     this.elements.infoTeamName.innerHTML = this.state.info.teamName
-    this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socket
+    this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socketId
     this.elements.infoTeamMembers.innerHTML = ''
 
     for(var i=0; i < this.state.info.authors.length; i++) {
@@ -117,10 +70,10 @@ UI.prototype = {
   },
 
   updateSimulateButton: function () {
-    if(this.state.simulatedGame) {
-      this.elements.simulateButton.classList.add('simulate-button--hidden')
-    } else {
+    if(this.state.isDebug) {
       this.elements.simulateButton.classList.remove('simulate-button--hidden')
+    } else {
+      this.elements.simulateButton.classList.add('simulate-button--hidden')
     }
   }
 }

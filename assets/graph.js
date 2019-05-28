@@ -11,8 +11,8 @@ var Graph = function (rootElement, model) {
     },
     container: {
       padding: 100,
-      width: window.innerWidth,
-      height: window.innerHeight
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight
     },
     colors: ['#FB0000','#C200FB','#00FB4B','#000FFB']
   }
@@ -105,14 +105,15 @@ Graph.prototype = {
   },
 
   drawMouseLine: function(event) {
+    console.log(event)
     var isWithinGraph =
-      event.screenX >= 100 &&
-      event.screenX <= this.settings.container.width - 100 &&
-      event.screenY >= 100 &&
-      event.screenY <= this.settings.container.height
+      event.clientX >= 100 &&
+      event.clientX <= this.settings.container.width - 100 &&
+      event.clientY >= 100 &&
+      event.clientY <= this.settings.container.height - 100
 
     if(isWithinGraph) {
-      var roundedPosX = Math.floor(event.screenX / this.step) * this.step
+      var roundedPosX = Math.floor(event.clientX / this.step) * this.step
       var round = Math.ceil((roundedPosX - 100) / this.step)
 
       this.ctx.lineWidth = .5
@@ -271,6 +272,7 @@ Graph.prototype = {
     this.ctx.fillText("Score", 0, 0);
     this.ctx.restore();
 
+    this.ctx.textAlign = "center"
     this.ctx.fillText("Rounds", this.settings.container.width / 2, this.settings.container.height - 80);
 
     this.ctx.textAlign = "right";

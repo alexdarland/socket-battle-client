@@ -1,5 +1,6 @@
 * {
     box-sizing: border-box;
+    outline: none;
 }
 
 body {
@@ -160,6 +161,11 @@ body {
 }
 
 .game-status--playing {
+    background: red;
+    color: white;
+}
+
+.game-status--playing:before {
   content: "Playing";
 }
 
