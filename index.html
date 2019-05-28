@@ -8,17 +8,17 @@
 </head>
 <body>
 <main>
-  <div id="connection-status" class="connection-status"></div>
-  <div id="game-status" class="game-status"></div>
-  <div class="info">
-    <div id="info-team-name" class="info__name"></div>
-    <div id="info-team-socket"></div>
-    <ul id="info-team-members" class="info__members"></ul>
-  </div>
+  <header class="header">
+    <div id="connection-status" class="connection-status"></div>
+    <div id="game-status" class="game-status"></div>
+    <button id="simulate-button" class="simulate-button">Simulate game</button>
+    <div class="info">
+      <div id="info-team-name" class="info__name"></div>
+      <!--<div id="info-team-socket"></div>-->
+      <ul id="info-team-members" class="info__members"></ul>
+    </div>
+  </header>
   <div id="graph"></div>
-  <div id="controls" class="controls">
-    <button id="simulate-button" class="simulate-button">Simulate</button>
-  </div>
   <div id="rounds" class="rounds"></div>
 </main>
 <script src="info.js"></script>

@@ -52,7 +52,7 @@ UI.prototype = {
     if(!this.state.info) return
 
     this.elements.infoTeamName.innerHTML = this.state.info.teamName
-    this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socketId
+    // this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socketId
     this.elements.infoTeamMembers.innerHTML = ''
 
     for(var i=0; i < this.state.info.authors.length; i++) {

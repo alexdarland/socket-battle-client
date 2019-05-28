@@ -7,6 +7,7 @@ body {
     font-family: "Helvetica Neue", sans-serif;
     color: #333;
     overflow: hidden;
+    background: #232A30;
 }
 
 body {
@@ -20,9 +21,6 @@ body {
 .connection-status {
     display: flex;
     align-items: center;
-    position: absolute;
-    top: 20px;
-    left: 20px;
 }
 
 .connection-status:before {
@@ -122,9 +120,6 @@ body {
 }
 
 .info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   text-align: right;
 }
 
@@ -147,9 +142,6 @@ body {
 }
 
 .game-status {
-  position: absolute;
-  left: 50%;
-  top: 20px;
   transform: translateX(-50%);
   padding: 10px 20px;
   border-radius: 20px;
@@ -316,17 +308,24 @@ body {
 }
 
 .simulate-button {
-  position: absolute;
-  bottom: 15px;
-  right: 100px;
-  padding: 20px 30px;
+  padding: 10px 15px;
   line-height: 1em;
   border: none;
   background: #333;
   color: #fff;
-  font-size: 30px;
+  font-size: 20px;
 }
 
 .simulate-button--hidden {
   display: none;
+}
+
+.header {
+    background: #323349;
+    color: #fff;
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 100px;
 }

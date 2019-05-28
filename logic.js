@@ -11,9 +11,21 @@ function logic(players, tilePosition, availableTiles, tiles, history) {
 
   // console.log(players, tilePosition, availableTiles, tiles, history)
 
-  var betterOptionForAggressive = tiles[0].value > tiles[4].value || tiles[2].value > tiles[4].value
+  var highValueTile = 4
+  var middleValueTile = 6
+  var lowValueTile = 8
 
-  return betterOptionForAggressive && tiles[4].value > tiles[6].value ? 4 : tiles[6].value > tiles[8].value ? 6 : 8
+  var aggressivePlayerWillNotPickMiddle = tiles[0].value > tiles[4].value || tiles[2].value > tiles[4].value
+  var middleValueTileHasBadProfit = tiles[6].value < 4
+  var highValueTileIsGreaterThanMiddleValueTile = tiles[4].value > tiles[6].value
+  var middleValueTileIsGreaterThanLowValueTile = tiles[6].value > tiles[8].value
+
+  if(!aggressivePlayerWillNotPickMiddle && middleValueTileHasBadProfit) {
+    return highValueTile
+  } else {
+    return aggressivePlayerWillNotPickMiddle && highValueTileIsGreaterThanMiddleValueTile ? highValueTile :
+        middleValueTileIsGreaterThanLowValueTile ? middleValueTile : lowValueTile
+  }
 
   // return availableTiles[Math.floor(Math.random() * 3)]
 

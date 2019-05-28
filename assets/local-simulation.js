@@ -14,14 +14,20 @@ localSimulation.simulate = function (playerInfo, payload) {
       }
     }
 
+    var playerIndex = 3
     var tilePosition = 7
     var availableTiles = [4, 6, 8]
-    var tileIndex = logic(payload.players, tilePosition, availableTiles, publicRound, publicHistory)
 
-    if(availableTiles.indexOf(tileIndex) !== -1) {
-      payload.history[i][tileIndex].claims.push(3)
-    } else {
-      payload.history[i][tilePosition].error = true
+    try {
+      var tileIndex = logic(payload.players, tilePosition, availableTiles, publicRound, publicHistory)
+
+      if(availableTiles.indexOf(tileIndex) === -1) {
+        throw new Error('Tile index ' + tileIndex + ' is not valid')
+      } else {
+        payload.history[i][tileIndex].claims.push(playerIndex)
+      }
+    } catch (e) {
+      payload.history[i][tilePosition].error = e.message
     }
 
     publicHistory.push(payload.history[i])
@@ -31,29 +37,38 @@ localSimulation.simulate = function (playerInfo, payload) {
 }
 
 localSimulation.evaluateGame = function (payload) {
-  for(var i=0; i < payload.history.length; i++) {
+  var player, i, j, k
+
+  for(i=0; i < payload.players.length; i++) {
+    player = payload.players[i]
+    player.scoreHistory = [0]
+    player.score = 0
+    player.wins = 0
+  }
+
+  for(i=0; i < payload.history.length; i++) {
     var round = payload.history[i]
 
-    for(var j=0; j < round.length; j++) {
+    for(j=0; j < round.length; j++) {
       var tile = round[j]
 
       if(tile.type === 'coins' && tile.claims.length === 1 ) {
-
-        var player = payload.players[tile.claims[0]]
+        player = payload.players[tile.claims[0]]
         player.score += tile.value
         player.scoreHistory.push(player.score)
-        player.wins++
-
+        // player.wins++
       } else if(tile.type === 'coins' && tile.claims.length > 1 ) {
-
-        for(var k=0; k < tile.claims.length; k++) {
-          var player = payload.players[tile.claims[k]]
+        for(k=0; k < tile.claims.length; k++) {
+          player = payload.players[tile.claims[k]]
           player.scoreHistory.push(player.score)
         }
-
+      } else if(tile.type === 'player' && tile.error) {
+        payload.players[tile.playerIndex].scoreHistory.push(payload.players[tile.playerIndex].score)
       }
     }
-  }
 
+  }
+console.log(payload.players[0].scoreHistory.length, payload.players[1].scoreHistory.length, payload.players[2].scoreHistory.length, payload.players[3].scoreHistory.length)
+console.log(payload)
   return payload
 }
