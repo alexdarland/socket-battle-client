@@ -39,10 +39,52 @@ const payload = {
 }
 ```
 
-## Ideas
-* Only gets to test during battles - coding in the dark
-* Should a player get concatinated logic or should they generate that themselves (wins, losses, score)?
-* Varying amounts!
-* Increasing speed - end with analytics
-* Add link to Super Mario
-* Takeaway - You have now build
+### Players
+```js
+var players = [{
+    info: {
+      id: 'fa086d4e-1fde-4746-86df-5c96b88bfd16',
+      teamName: 'The Hoffs'
+    },
+    score: 10,
+    scoreHistory: [0, 3, 7, 7],
+    wins: 2
+  },
+  ...]
+```
+
+### tiles
+`tiles` beskriver hur rutnätet ser ut och det finns 2 typer av rutor - En som innehåller pengar/poäng och en som innehåller spelare.
+När typen är **"coin"** så finns det en egenskap som heter value. Denna beskriver hur många poäng man kan få.
+När typen är **"player"** så finns det en egenskap som heter playerIndex.
+
+```js
+var tiles = [
+    {
+      id: 0,         // The tiles id
+      type: 'coins', // Describes if the tile contains coins/points or a player
+      value: 3,      // The amount of coins/points available for the taking
+      claims: [],    // Does nothing during the current round
+    },
+    {
+      id: 1,          // The tiles id
+      type: 'player', // Describes if the tile contains coins/points or a player
+      playerIndex: 0  // More info about the player using this index on the player array
+    },
+    ...
+  ]
+```
+
+Vill man veta mer om denna spelaren så kan man skriva såhär.
+```js
+// Loop each tile
+  for(var i=0; i < tiles.length; i++) {
+    // Select the current tile in the loop
+    var tile = tiles[i]
+    // if the current tile is a player
+    if (tile.type === 'player') {
+      // Select the info from the players object
+      var playerInfo = players[tile.playerIndex]
+    }
+  }
+```

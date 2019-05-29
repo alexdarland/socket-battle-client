@@ -16,11 +16,11 @@ var Graph = function (rootElement, model) {
     height: document.documentElement.clientHeight
   }
   this.settings.lineGraph = {
-    top: 100,
+    top: 150,
     bottom: this.settings.container.height - 300,
     left: 100,
     right: this.settings.container.width - 100,
-    height: this.settings.container.height - 400,
+    height: this.settings.container.height - 450,
     width: this.settings.container.width - 200
   }
   this.settings.board = {
@@ -164,7 +164,7 @@ Graph.prototype = {
 
       this.ctx.fillStyle = "#fff";
       this.ctx.textAlign = "left"
-      this.ctx.fillText("Round: " + roundIndex, roundedPosX, 95)
+      this.ctx.fillText("Round: " + roundIndex, roundedPosX, this.settings.lineGraph.top - 10)
 
       for(var i=0; i < this.model.players.length; i++) {
         var score = this.model.players[i].scoreHistory[roundIndex]
@@ -178,7 +178,42 @@ Graph.prototype = {
       if(roundIndex !== 0) {
         this.drawBoard(this.model.history[roundIndex - 1])
       }
+    } else {
+      this.drawBoard(this.model.history[this.model.history.length - 1])
     }
+  },
+
+  drawArrowhead: function(context, from, to, radius) {
+    var x_center = to.x;
+    var y_center = to.y;
+
+    var angle;
+    var x;
+    var y;
+
+    context.beginPath();
+
+    angle = Math.atan2(to.y - from.y, to.x - from.x)
+    x = radius * Math.cos(angle) + x_center;
+    y = radius * Math.sin(angle) + y_center;
+
+    context.moveTo(x, y);
+
+    angle += (1.0/3.0) * (2 * Math.PI)
+    x = radius * Math.cos(angle) + x_center;
+    y = radius * Math.sin(angle) + y_center;
+
+    context.lineTo(x, y);
+
+    angle += (1.0/3.0) * (2 * Math.PI)
+    x = radius *Math.cos(angle) + x_center;
+    y = radius *Math.sin(angle) + y_center;
+
+    context.lineTo(x, y);
+
+    context.closePath();
+
+    context.fill();
   },
 
   drawBoard: function(roundData) {
@@ -197,14 +232,26 @@ Graph.prototype = {
       var posY = this.settings.board.top + (this.settings.board.tileHeight * (Math.floor(i / 3)))
 
       this.ctx.beginPath();
+      this.ctx.lineWidth = 1
       this.ctx.fillStyle = tile.type === 'player' ? '#282B32' : '#2B2E35';
+
+      if(tile.type === 'coins') {
+        if(tile.claims.length > 1) {
+          this.ctx.fillStyle = '#522D2F'
+        } else if(tile.claims.length === 1) {
+          this.ctx.fillStyle = '#2C362F'
+        }
+      }
+
       this.ctx.fillRect(posX, posY, this.settings.board.tileWidth, this.settings.board.tileHeight)
+      this.ctx.strokeStyle = '#656C72'
       this.ctx.rect(posX, posY, this.settings.board.tileWidth, this.settings.board.tileHeight)
       this.ctx.stroke()
 
       this.ctx.beginPath();
-      this.ctx.fillStyle = '#373A41';
+      this.ctx.fillStyle = '#656C72';
       this.ctx.font = "12pt Helvetica Neue";
+      this.ctx.textAlign = "left"
       this.ctx.fillText(tile.id, posX + 10, posY + 20);
 
       if(tile.type === 'coins') {
@@ -214,18 +261,14 @@ Graph.prototype = {
         this.ctx.fillText(tile.value, posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2));
 
         for(var j=0; j < tile.claims.length; j++) {
-          this.ctx.fillStyle = this.colors[tile.claims[j]];
-          this.ctx.fillRect((posX + 10) + j * 10, posY + this.settings.board.tileHeight - 15, 10, 10)
+          var playerIndex = tile.claims[j]
+          this.ctx.fillStyle = this.colors[playerIndex];
         }
       } else {
         this.ctx.fillStyle = this.colors[tile.playerIndex];
         this.ctx.beginPath();
         this.ctx.arc(posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2), this.settings.board.tileHeight / 4, 0, 2 * Math.PI)
         this.ctx.fill()
-        this.ctx.fillStyle = '#fff'
-        this.ctx.font = "bold 8pt Helvetica Neue";
-        var teamName = this.model.players[tile.playerIndex].info.teamName
-        this.ctx.fillText(teamName, posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight - 5));
 
         if(tile.error) {
           this.ctx.beginPath();
@@ -235,6 +278,52 @@ Graph.prototype = {
           this.ctx.fillText('ERROR', posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2) + 6);
 
           // TODO: Print errors
+        }
+      }
+    }
+
+    for(var i=0; i < roundData.length; i++) {
+      var tile = roundData[i]
+      var posX = this.settings.board.left + (this.settings.board.tileWidth * i) % (this.settings.board.tileWidth * 3)
+      var posY = this.settings.board.top + (this.settings.board.tileHeight * (Math.floor(i / 3)))
+
+      if(tile.type === 'coins') {
+        for(var j=0; j < tile.claims.length; j++) {
+          var playerIndex = tile.claims[j]
+          this.ctx.fillStyle = this.colors[playerIndex];
+
+          var tileCenter = { x: posX + (this.settings.board.tileWidth / 2), y: posY + (this.settings.board.tileHeight / 2) }
+
+          // TODO: Make more dynamic
+          var playerTileCenterX =
+              playerIndex === 0 || playerIndex === 3 ? this.settings.board.left + (this.settings.board.tileWidth * 2) - (this.settings.board.tileWidth / 2) :
+              playerIndex === 1 ? this.settings.board.left + this.settings.board.tileWidth / 2 :
+              playerIndex === 2 ? this.settings.board.left + (this.settings.board.tileWidth * 3) - (this.settings.board.tileWidth / 2) : null
+
+          var playerTileCenterY =
+              playerIndex === 0 ? this.settings.board.top + (this.settings.board.tileHeight / 2) :
+              playerIndex === 1 || playerIndex === 2 ? this.settings.board.top + (this.settings.board.tileHeight * 2) - (this.settings.board.tileHeight / 2) :
+              playerIndex === 3 ? this.settings.board.top + (this.settings.board.tileWidth * 3) - (this.settings.board.tileWidth / 2) : null
+
+
+          var delta = {
+            x: tileCenter.x - (tileCenter.x - playerTileCenterX) * .5,
+            y: tileCenter.y - (tileCenter.y - playerTileCenterY) * .5
+          }
+
+          delta.x = delta.x === tileCenter.x ? delta.x : delta.x + (playerTileCenterX > tileCenter.x ? -6.5 : 6.5)
+          delta.y = delta.y === tileCenter.y ? delta.y : delta.y + (playerTileCenterY > tileCenter.y ? -6.5 : 6.5)
+
+          // Draw line
+          this.ctx.beginPath();
+          this.ctx.fillStyle = this.colors[playerIndex];
+          this.ctx.strokeStyle = this.colors[playerIndex];
+          this.ctx.lineWidth = 5
+          this.ctx.moveTo(playerTileCenterX, playerTileCenterY);
+          this.ctx.lineTo(delta.x, delta.y);
+          this.ctx.stroke()
+
+          this.drawArrowhead(this.ctx, { x: playerTileCenterX, y: playerTileCenterY }, delta, 12)
         }
       }
     }
@@ -373,7 +462,7 @@ Graph.prototype = {
     this.ctx.fillText("Rounds", this.settings.container.width / 2, this.settings.lineGraph.bottom + 20);
 
     this.ctx.textAlign = "right";
-    this.ctx.fillText(this.maxScore,90, 116);
+    this.ctx.fillText(this.maxScore, this.settings.lineGraph.left - 10, this.settings.lineGraph.top + 16);
   },
 
   drawLines: function () {

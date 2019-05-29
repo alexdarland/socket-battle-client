@@ -19,7 +19,7 @@ localSimulation.simulate = function (playerInfo, payload) {
     var availableTiles = [4, 6, 8]
 
     try {
-      var tileIndex = logic(payload.players, tilePosition, availableTiles, publicRound, publicHistory)
+      var tileIndex = logic(i + 1, payload.players, tilePosition, availableTiles, publicRound, publicHistory)
 
       if(availableTiles.indexOf(tileIndex) === -1) {
         throw new Error('Tile index ' + tileIndex + ' is not valid')
