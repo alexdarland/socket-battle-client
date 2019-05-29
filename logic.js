@@ -11,7 +11,7 @@ function logic(players, tilePosition, availableTiles, tiles, history) {
 
   // console.log(players, tilePosition, availableTiles, tiles, history)
 
-  var highValueTile = 4
+  /*var highValueTile = 4
   var middleValueTile = 6
   var lowValueTile = 8
 
@@ -25,9 +25,11 @@ function logic(players, tilePosition, availableTiles, tiles, history) {
   } else {
     return aggressivePlayerWillNotPickMiddle && highValueTileIsGreaterThanMiddleValueTile ? highValueTile :
         middleValueTileIsGreaterThanLowValueTile ? middleValueTile : lowValueTile
-  }
+  }*/
 
-  // return availableTiles[Math.floor(Math.random() * 3)]
+  return availableTiles[Math.floor(Math.random() * 3)]
+
+  // return 'asd'
 
 }
 
