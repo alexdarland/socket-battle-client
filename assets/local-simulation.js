@@ -1,6 +1,7 @@
 var localSimulation = {}
 
 localSimulation.simulate = function (playerInfo, payload) {
+  console.log('simulate')
   var publicHistory = []
   payload.players[3].info = playerInfo
 

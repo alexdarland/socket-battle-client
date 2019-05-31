@@ -1,4 +1,4 @@
-var UI = function (state, requestSimulatedGames) {
+var UI = function (state, requestGame) {
   this.state = state
   this.elements = {
     connectionStatus: document.getElementById('connection-status'),
@@ -14,7 +14,7 @@ var UI = function (state, requestSimulatedGames) {
     graph: document.getElementById('graph')
   }
   this.graph = null
-  this.elements.simulateButton.addEventListener('click', requestSimulatedGames)
+  this.elements.simulateButton.addEventListener('click', requestGame)
 }
 
 UI.prototype = {
@@ -62,6 +62,11 @@ UI.prototype = {
 
   renderSimulatedGame: function () {
     this.graph = new Graph(this.elements.graph, this.state.simulatedGame)
+  },
+
+  renderGame: function(payload) {
+    this.clearGraph()
+    this.graph = new Graph(this.elements.graph, payload)
   },
 
   clearGraph: function() {

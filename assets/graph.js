@@ -3,6 +3,7 @@ var Graph = function (rootElement, model) {
     root: rootElement,
     canvas: null
   }
+
   this.settings = {}
 
   this.settings.fontSizes = {
@@ -35,52 +36,56 @@ var Graph = function (rootElement, model) {
     circleWidth: 100,
     circleHeight: 100
   }
-  this.settings.colors = ['#F33530','#FAD718','#98CD22','#0FC0EC']
+  this.settings.errorMessages = {
+    top: this.settings.lineGraph.top + 20,
+    left: this.settings.lineGraph.left + 20
+  }
+  this.settings.colors = ['#98CD22','#F33530','#FAD718', '#0FC0EC']
 
   this.ctx = null
   this.model = model
   this.maxScore = 0
-  this.colors = ['#F33530','#FAD718','#98CD22','#0FC0EC']
-  this.step = (this.settings.container.width - (this.settings.container.padding * 2)) / this.model.history.length
-
+  this.playerIds = ['A', 'B', 'C', 'D']
+  this.step = this.settings.lineGraph.width / this.model.length
   this.createCanvas()
   this.setMaxScore()
   this.animate()
+
 }
 
 Graph.prototype = {
 
   animate: function() {
     var _this = this
-    var copy = JSON.parse(JSON.stringify(this.model.players))
     var counter = 0
     var interval = null
 
+    var stop = function() {
+      clearInterval(interval)
+      _this.drawFinalLineGraphValues()
+      _this.registerEvents()
+    }
+
     interval = setInterval(function () {
-      for(var i=0; i < copy.length; i++) {
-        var player = _this.model.players[i]
-        player.scoreHistory = copy[i].scoreHistory.slice(0, counter)
-
-        var currentScore = player.scoreHistory[player.scoreHistory.length - 1]
-        var previousScore = player.scoreHistory[player.scoreHistory.length - 2]
-
-        player.wins = currentScore > previousScore ? player.wins + 1 : player.wins
-      }
-
+      _this.currentRound = _this.model[counter]
       _this.ctx.clearRect(0,0, _this.settings.container.width, _this.settings.container.height)
-      _this.drawBackground()
-      _this.drawGraph()
-      _this.drawLines()
-      // _this.drawLegend()
-      _this.drawPercentages()
-      _this.drawBoard(_this.model.history[counter])
+
+      try {
+        _this.drawBackground()
+        _this.drawGraph()
+        _this.drawLines()
+        _this.drawGraphErrors()
+        _this.drawPercentages()
+        _this.drawBoard()
+      } catch (e) {
+        console.log(e)
+        stop()
+      }
 
       counter++
 
-      if(counter === _this.model.history.length) {
-        clearInterval(interval)
-        _this.drawFinalLineGraphValues()
-        _this.registerEvents()
+      if(counter === _this.model.length) {
+        stop()
       }
     }, 30)
   },
@@ -129,13 +134,23 @@ Graph.prototype = {
 
   handleMouseMove: function(event) {
     this.ctx.clearRect(0,0, this.settings.container.width, this.settings.container.height)
+    this.currentRound = this.model[this.model.length - 1]
     this.drawBackground()
     this.drawGraph()
     this.drawLines()
-    // this.drawLegend()
-    this.drawMouseLine(event)
-    this.drawPercentages()
+    this.drawGraphErrors()
     this.drawFinalLineGraphValues()
+
+    // Set currentRound after rendering things that will not change
+    var left = event.clientX - this.settings.lineGraph.left
+    var roundedPosX = Math.floor(left / this.step) * this.step
+    var roundIndex = Math.ceil(roundedPosX / this.step) - 1
+    this.currentRound = this.model[roundIndex]
+
+    this.drawMouseLine(event)
+    this.drawErrorMessages()
+    this.drawPercentages()
+    this.drawBoard()
   },
 
   drawBackground: function() {
@@ -151,35 +166,40 @@ Graph.prototype = {
         event.clientY <= this.settings.lineGraph.bottom
 
     if(isWithinGraph) {
-      var roundedPosX = Math.floor(event.clientX / this.step) * this.step
-      var roundIndex = Math.ceil((roundedPosX - 100) / this.step)
+      var left = event.clientX - this.settings.lineGraph.left
+      var roundedPosX = Math.floor(left / this.step) * this.step
+      var roundIndex = Math.ceil(roundedPosX / this.step)
 
       this.ctx.lineWidth = .5
       this.ctx.strokeStyle = '#ccc'
       this.ctx.fillStyle = "#ccc";
       this.ctx.beginPath()
-      this.ctx.moveTo(roundedPosX, this.settings.lineGraph.bottom)
-      this.ctx.lineTo(roundedPosX, this.settings.lineGraph.top)
+      this.ctx.moveTo(this.settings.lineGraph.left + roundedPosX, this.settings.lineGraph.bottom)
+      this.ctx.lineTo(this.settings.lineGraph.left + roundedPosX, this.settings.lineGraph.top)
       this.ctx.stroke()
 
       this.ctx.fillStyle = "#fff";
       this.ctx.textAlign = "left"
-      this.ctx.fillText("Round: " + roundIndex, roundedPosX, this.settings.lineGraph.top - 10)
+      this.ctx.fillText("Round: " + roundIndex, roundedPosX + this.settings.lineGraph.left, this.settings.lineGraph.top - 10)
 
-      for(var i=0; i < this.model.players.length; i++) {
-        var score = this.model.players[i].scoreHistory[roundIndex]
-        var position = { x: roundedPosX, y: this.settings.lineGraph.bottom - (this.settings.lineGraph.height * (score/this.maxScore)) }
-        this.ctx.fillStyle = this.colors[i]
+      // Draw hover dots for lines
+      /*for(var i=0; i < this.playerIds.length; i++) {
+        var player = this.currentRound['player' + this.playerIds[i]]
+        var position = {
+          x: roundedPosX + this.settings.lineGraph.left,
+          y: this.settings.lineGraph.bottom - (this.settings.lineGraph.height * (player.totalScore/this.maxScore))
+        }
+        this.ctx.fillStyle = this.settings.colors[i]
         this.ctx.beginPath();
         this.ctx.arc(position.x, position.y, 5, 0, 2 * Math.PI)
         this.ctx.fill()
-      }
+      }*/
 
-      if(roundIndex !== 0) {
+      /*if(roundIndex !== 0) {
         this.drawBoard(this.model.history[roundIndex - 1])
-      }
+      }*/
     } else {
-      this.drawBoard(this.model.history[this.model.history.length - 1])
+      this.currentRound = this.model[this.model.length - 1]
     }
   },
 
@@ -216,7 +236,9 @@ Graph.prototype = {
     context.fill();
   },
 
-  drawBoard: function(roundData) {
+  drawBoard: function() {
+    if(!this.currentRound) return
+
     this.ctx.font = "12pt Helvetica Neue";
     this.ctx.fillStyle = "#ccc";
     this.ctx.lineWidth = 1
@@ -224,23 +246,26 @@ Graph.prototype = {
     this.ctx.rect(this.settings.board.left, this.settings.board.top, this.settings.board.tileWidth * 3, this.settings.board.tileHeight * 3)
     this.ctx.fillStyle = "#fff";
 
-    if(!roundData) return
-
-    for(var i=0; i < roundData.length; i++) {
-      var tile = roundData[i]
+    for(var i=0; i < this.currentRound.tiles.length; i++) {
+      var value = this.currentRound.tiles[i]
       var posX = this.settings.board.left + (this.settings.board.tileWidth * i) % (this.settings.board.tileWidth * 3)
       var posY = this.settings.board.top + (this.settings.board.tileHeight * (Math.floor(i / 3)))
+      var tileIsPlayer = typeof value === 'string'
+      var tileClaims = 0
 
       this.ctx.beginPath();
       this.ctx.lineWidth = 1
-      this.ctx.fillStyle = tile.type === 'player' ? '#282B32' : '#2B2E35';
+      this.ctx.fillStyle = typeof value === 'string' ? '#282B32' : '#2B2E35';
 
-      if(tile.type === 'coins') {
-        if(tile.claims.length > 1) {
-          this.ctx.fillStyle = '#522D2F'
-        } else if(tile.claims.length === 1) {
-          this.ctx.fillStyle = '#2C362F'
+      for(var j=0; j < this.playerIds.length; j++) {
+        var player = this.currentRound['player' + this.playerIds[j]]
+        if(player.chosenTileIndex === i) {
+          tileClaims++
         }
+      }
+
+      if(!tileIsPlayer && tileClaims > 0) {
+        this.ctx.fillStyle = tileClaims === 1 ? '#2C362F' : '#522D2F'
       }
 
       this.ctx.fillRect(posX, posY, this.settings.board.tileWidth, this.settings.board.tileHeight)
@@ -252,102 +277,66 @@ Graph.prototype = {
       this.ctx.fillStyle = '#656C72';
       this.ctx.font = "12pt Helvetica Neue";
       this.ctx.textAlign = "left"
-      this.ctx.fillText(tile.id, posX + 10, posY + 20);
+      this.ctx.fillText(i, posX + 10, posY + 20);
 
-      if(tile.type === 'coins') {
-        this.ctx.textAlign = "center";
-        this.ctx.textBaseline
-        this.ctx.fillStyle = '#ebebeb';
-        this.ctx.fillText(tile.value, posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2));
-
-        for(var j=0; j < tile.claims.length; j++) {
-          var playerIndex = tile.claims[j]
-          this.ctx.fillStyle = this.colors[playerIndex];
-        }
-      } else {
-        this.ctx.fillStyle = this.colors[tile.playerIndex];
+      if(tileIsPlayer) {
+        var colorIndex = value === 'A' ? 0 : value === 'B' ? 1 : value === 'C' ? 2 : 3
+        this.ctx.fillStyle = this.settings.colors[colorIndex];
         this.ctx.beginPath();
         this.ctx.arc(posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2), this.settings.board.tileHeight / 4, 0, 2 * Math.PI)
         this.ctx.fill()
-
-        if(tile.error) {
-          this.ctx.beginPath();
-          this.ctx.fillStyle = 'red'
-          this.ctx.fillRect(posX + 15, posY + (this.settings.board.tileHeight / 2) - 10, this.settings.board.tileWidth - 30, 20)
-          this.ctx.fillStyle = '#fff'
-          this.ctx.fillText('ERROR', posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2) + 6);
-
-          // TODO: Print errors
-        }
+      } else {
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline
+        this.ctx.fillStyle = '#ebebeb';
+        this.ctx.fillText(value, posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2));
       }
     }
 
-    for(var i=0; i < roundData.length; i++) {
-      var tile = roundData[i]
-      var posX = this.settings.board.left + (this.settings.board.tileWidth * i) % (this.settings.board.tileWidth * 3)
-      var posY = this.settings.board.top + (this.settings.board.tileHeight * (Math.floor(i / 3)))
+    for(var i=0; i < this.playerIds.length; i++) {
+      var player = this.currentRound['player' + this.playerIds[i]]
 
-      if(tile.type === 'coins') {
-        for(var j=0; j < tile.claims.length; j++) {
-          var playerIndex = tile.claims[j]
-          this.ctx.fillStyle = this.colors[playerIndex];
+      if(!player.error) {
+        var playerTileCenter = this.getTileCenterOnBoard(player.position)
+        var chosenTileCenter = this.getTileCenterOnBoard(player.chosenTileIndex)
 
-          var tileCenter = { x: posX + (this.settings.board.tileWidth / 2), y: posY + (this.settings.board.tileHeight / 2) }
+        this.ctx.fillStyle = this.settings.colors[i];
 
-          // TODO: Make more dynamic
-          var playerTileCenterX =
-              playerIndex === 0 || playerIndex === 3 ? this.settings.board.left + (this.settings.board.tileWidth * 2) - (this.settings.board.tileWidth / 2) :
-              playerIndex === 1 ? this.settings.board.left + this.settings.board.tileWidth / 2 :
-              playerIndex === 2 ? this.settings.board.left + (this.settings.board.tileWidth * 3) - (this.settings.board.tileWidth / 2) : null
-
-          var playerTileCenterY =
-              playerIndex === 0 ? this.settings.board.top + (this.settings.board.tileHeight / 2) :
-              playerIndex === 1 || playerIndex === 2 ? this.settings.board.top + (this.settings.board.tileHeight * 2) - (this.settings.board.tileHeight / 2) :
-              playerIndex === 3 ? this.settings.board.top + (this.settings.board.tileWidth * 3) - (this.settings.board.tileWidth / 2) : null
-
-
-          var delta = {
-            x: tileCenter.x - (tileCenter.x - playerTileCenterX) * .5,
-            y: tileCenter.y - (tileCenter.y - playerTileCenterY) * .5
-          }
-
-          delta.x = delta.x === tileCenter.x ? delta.x : delta.x + (playerTileCenterX > tileCenter.x ? -6.5 : 6.5)
-          delta.y = delta.y === tileCenter.y ? delta.y : delta.y + (playerTileCenterY > tileCenter.y ? -6.5 : 6.5)
-
-          // Draw line
-          this.ctx.beginPath();
-          this.ctx.fillStyle = this.colors[playerIndex];
-          this.ctx.strokeStyle = this.colors[playerIndex];
-          this.ctx.lineWidth = 5
-          this.ctx.moveTo(playerTileCenterX, playerTileCenterY);
-          this.ctx.lineTo(delta.x, delta.y);
-          this.ctx.stroke()
-
-          this.drawArrowhead(this.ctx, { x: playerTileCenterX, y: playerTileCenterY }, delta, 12)
+        var delta = {
+          x: chosenTileCenter.x - (chosenTileCenter.x - playerTileCenter.x) * .5,
+          y: chosenTileCenter.y - (chosenTileCenter.y - playerTileCenter.y) * .5
         }
+
+        delta.x = delta.x === chosenTileCenter.x ? delta.x : delta.x + (playerTileCenter.x > chosenTileCenter.x ? -6.5 : 6.5)
+        delta.y = delta.y === chosenTileCenter.y ? delta.y : delta.y + (playerTileCenter.y > chosenTileCenter.y ? -6.5 : 6.5)
+
+        // Draw line
+        this.ctx.beginPath();
+        this.ctx.fillStyle = this.settings.colors[i];
+        this.ctx.strokeStyle = this.settings.colors[i];
+        this.ctx.lineWidth = 5
+        this.ctx.moveTo(playerTileCenter.x, playerTileCenter.y);
+        this.ctx.lineTo(delta.x, delta.y);
+        this.ctx.stroke()
+
+        this.drawArrowhead(this.ctx, { x: playerTileCenter.x, y: playerTileCenter.y }, delta, 12)
       }
     }
   },
 
-  drawLegend: function() {
-    var baseX = 100
-    var baseY = this.settings.container.height - 60
-    this.ctx.textAlign = "left";
-    this.ctx.font = "10pt Helvetica Neue";
-    for(var i=0; i < this.model.players.length; i++) {
-      var player = this.model.players[i]
-
-      this.ctx.fillStyle = this.colors[i];
-      this.ctx.fillRect(baseX + (i * 150), baseY, 20, 20)
-      this.ctx.fillStyle = '#fff';
-      this.ctx.fillText(player.info.teamName + ' (' + player.scoreHistory[player.scoreHistory.length - 1] + ' points)', baseX + (i * 150) + 25, baseY + 15);
-    }
+  getTileCenterOnBoard: function(tileIndex) {
+    var x = this.settings.board.left + (this.settings.board.tileWidth * tileIndex) % (this.settings.board.tileWidth * 3)
+    var y = this.settings.board.top + (this.settings.board.tileHeight * (Math.floor(tileIndex / 3)))
+    return { x: x + (this.settings.board.tileWidth / 2), y: y  + (this.settings.board.tileHeight / 2)}
   },
 
   drawPercentages: function() {
-    for(var i=0; i < this.model.players.length; i++) {
-      var player = this.model.players[i]
-      var percentage = (player.wins / player.scoreHistory.length)
+    if(!this.currentRound) return
+
+    for(var i=0; i < this.playerIds.length; i++) {
+      var playerId = 'player' + this.playerIds[i]
+      var player = this.currentRound[playerId]
+      var percentage = player.totalWins / this.currentRound.number
       var degrees = 360 * percentage
       var position = {
         x: this.settings.percentage.left + (this.settings.percentage.circleWidth + 55) * i,
@@ -380,19 +369,35 @@ Graph.prototype = {
       this.ctx.fillText('Win rate', position.x + (this.settings.percentage.circleWidth / 2), position.y + 20);
 
       this.ctx.font = "bold 12pt Helvetica Neue";
-      this.ctx.fillText(player.info.teamName, position.x + (this.settings.percentage.circleWidth / 2), this.settings.percentage.top - 20);
+      this.ctx.fillText(player.name, position.x + (this.settings.percentage.circleWidth / 2), this.settings.percentage.top - 20);
 
       this.ctx.font = "10pt Helvetica Neue";
 
+      var scoreValues = {}
+      var j
 
-      var total = 0;
-      for(var j = 0; j < player.scoreHistory.length; j++) {
-        total += player.scoreHistory[i];
+      for(j = 0; j < this.currentRound.number; j++) {
+        var pointsAwarded = this.model[j][playerId].pointsAwarded
+        scoreValues[pointsAwarded] = scoreValues[pointsAwarded] ? scoreValues[pointsAwarded] + 1 : 1
+        if(pointsAwarded !== 0) {
+        }
       }
-      var avg = total / player.scoreHistory.length;
+
+      var mostCommonValue = null
+
+      for(j=0; j < Object.keys(scoreValues).length; j++) {
+        var key = Object.keys(scoreValues)[j]
+        var value = scoreValues[key]
+
+        if (key !== '0' && (mostCommonValue == null || value > mostCommonValue.value)) {
+          mostCommonValue = { key: key, value: value }
+        }
+      }
+
+      var text = mostCommonValue ? mostCommonValue.key : 'NA'
 
       this.ctx.fillText(
-          'Avg win: ' + avg,
+          'Points mode: ' + text,
           position.x + (this.settings.percentage.circleWidth / 2),
           this.settings.percentage.top + this.settings.percentage.circleHeight + 30
       )
@@ -400,13 +405,17 @@ Graph.prototype = {
   },
 
   setMaxScore: function() {
-    for(var i=0; i < this.model.players.length; i++) {
-      var player = this.model.players[i]
+    var lastRound = this.model[this.model.length - 1]
+    var maxScore = 0
 
-      if(player.score > this.maxScore)
-
-        this.maxScore = Math.ceil(player.score / 100) * 100
+    for(var i=0; i < this.playerIds.length; i++) {
+      var player = lastRound['player' + this.playerIds[i]]
+      if (player.totalScore > maxScore) {
+        maxScore = player.totalScore
+      }
     }
+
+    this.maxScore = Math.ceil(maxScore / 100) * 100
   },
 
   drawGraph: function () {
@@ -458,33 +467,80 @@ Graph.prototype = {
     this.ctx.fillText("Score", 0, 0);
     this.ctx.restore();
 
-    this.ctx.textAlign = "center"
-    this.ctx.fillText("Rounds", this.settings.container.width / 2, this.settings.lineGraph.bottom + 20);
+    /*this.ctx.textAlign = "center"
+    this.ctx.fillText("Rounds", this.settings.container.width / 2, this.settings.lineGraph.bottom + 20);*/
 
     this.ctx.textAlign = "right";
     this.ctx.fillText(this.maxScore, this.settings.lineGraph.left - 10, this.settings.lineGraph.top + 16);
   },
 
   drawLines: function () {
-    for(var i=0; i < this.model.players.length; i++) {
-      var player = this.model.players[i]
 
+    for(var i=0; i < this.playerIds.length; i++) {
+      var playerId = this.playerIds[i]
       this.ctx.beginPath();
-      this.ctx.strokeStyle = this.colors[i]
+      this.ctx.moveTo(this.settings.lineGraph.left, this.settings.lineGraph.bottom);
+      this.ctx.strokeStyle = this.settings.colors[i]
       this.ctx.lineWidth = 2
 
-      for(var j=0; j < player.scoreHistory.length; j++) {
-        var currentScore = player.scoreHistory[j]
-        var nextScore = player.scoreHistory[j + 1]
+      for(var j=0; j < this.currentRound.number; j++) {
+        var score = this.model[j]['player'+ playerId].totalScore
+        var position ={
+          x: this.settings.lineGraph.left + this.step * (j + 1),
+          y: this.settings.lineGraph.bottom - (this.settings.lineGraph.height * (score/this.maxScore))
+        }
 
-        var currentPosition = { x: this.settings.lineGraph.left + this.step * j, y: this.settings.lineGraph.bottom - (this.settings.lineGraph.height * (currentScore/this.maxScore)) }
-        var nextPosition = { x: this.settings.lineGraph.left + this.step * (j + 1), y: this.settings.lineGraph.bottom - (this.settings.lineGraph.height * (nextScore/this.maxScore)) }
+        this.ctx.lineTo(position.x, position.y);
 
-        this.ctx.moveTo(currentPosition.x, currentPosition.y);
-        this.ctx.lineTo(nextPosition.x, nextPosition.y);
       }
-
       this.ctx.stroke();
+    }
+  },
+
+  drawGraphErrors: function() {
+
+    for(var i=0; i < this.playerIds.length; i++) {
+      var playerId = this.playerIds[i]
+      this.ctx.fillStyle = this.settings.colors[i];
+
+      for(var j=0; j < this.currentRound.number; j++) {
+        var player = this.model[j]['player'+ playerId]
+
+        if(player.error) {
+          var position ={
+            x: this.settings.lineGraph.left + this.step * (j + 1),
+            y: this.settings.lineGraph.bottom + 10 + (i * 10)
+          }
+          this.ctx.beginPath();
+          this.ctx.arc(position.x, position.y, 4, 0, 2 * Math.PI)
+          this.ctx.fill()
+        }
+      }
+    }
+  },
+
+  drawErrorMessages: function() {
+    if(!this.currentRound) return
+
+    var messages = []
+
+    for(var i=0; i < this.playerIds.length; i++) {
+      var playerId = this.playerIds[i]
+      var player = this.currentRound['player'+ playerId]
+
+      if(player.error) {
+        messages.push(player)
+      }
+    }
+
+
+    this.ctx.fillStyle = '#fff'
+    for(var i=0; i < messages.length; i++) {
+      var posY = this.settings.errorMessages.top + (40 * i)
+      this.ctx.font = "bold 10pt Helvetica Neue";
+      this.ctx.fillText(messages[i].name + ':', this.settings.errorMessages.left, posY);
+      this.ctx.font = "10pt Helvetica Neue";
+      this.ctx.fillText(messages[i].error, this.settings.errorMessages.left, posY + 15);
     }
   },
 
@@ -493,12 +549,16 @@ Graph.prototype = {
     this.ctx.textAlign = "left"
     this.ctx.font = "10pt Helvetica Neue";
 
-    for(var i=0; i < this.model.players.length; i++) {
-      var player = this.model.players[i]
-      var lastScore = player.scoreHistory[player.scoreHistory.length - 1]
-      var position = { x: this.settings.lineGraph.right + 10, y: this.settings.lineGraph.bottom + 5 - (this.settings.lineGraph.height * (lastScore/this.maxScore)) }
+    var lastRound = this.model[this.model.length - 1]
+    var playerIds = ['A', 'B', 'C', 'D']
+    for(var i=0; i < playerIds.length; i++) {
+      var playerScore = lastRound['player' + playerIds[i]].totalScore
+      var position = {
+        x: this.settings.lineGraph.right + 10,
+        y: this.settings.lineGraph.bottom + 5 - (this.settings.lineGraph.height * (playerScore/this.maxScore))
+      }
 
-      this.ctx.fillText(lastScore, position.x, position.y)
+      this.ctx.fillText(playerScore, position.x, position.y)
     }
   }
 }
