@@ -18,7 +18,7 @@ const Connection = function () {
   this.socket.on('request_logic', this.handleRequestLogic.bind(this));
   this.socket.on('request_game_success', this.handleRequestGameSuccess.bind(this));
   this.socket.on('request_saved_game_success', this.handleRequestGameSuccess.bind(this));
-  this.socket.on('user_updated', this.handleUserUpdated.bind(this));
+  this.socket.on('saved_games_updated', this.savedGamesUpdated.bind(this));
 
   this.setId = this.setId.bind(this)
 
@@ -42,9 +42,10 @@ Connection.generateId = function() {
 
 Connection.prototype = {
 
-  handleUserUpdated: function(payload) {
-    this.state.info = payload
-    this.ui.updateUI()
+  savedGamesUpdated: function(payload) {
+    this.state.info.savedGames = payload
+    this.ui.setVersion(payload[payload.length - 1])
+    this.ui.renderSavedGames()
   },
 
   setId: function () {

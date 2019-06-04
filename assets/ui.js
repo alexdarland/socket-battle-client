@@ -29,10 +29,10 @@ UI.prototype = {
     var version = localStorage.getItem('version')
 
     if(this.versionExistsInSavedGames(version)) {
-      this.state.version = version
+      this.version = version
       this.elements.replayRoundButton.classList.remove('replay--hidden')
     } else {
-      this.state.version = null
+      this.version = null
       localStorage.removeItem('version')
       this.elements.replayRoundButton.classList.add('replay--hidden')
     }
@@ -59,8 +59,8 @@ UI.prototype = {
   },
 
   replayGame: function() {
-    if(this.state.version) {
-      this.send('request_replay_saved_game', this.state.version)
+    if(this.version) {
+      this.send('request_replay_saved_game', this.version)
     }
   },
 
@@ -72,10 +72,12 @@ UI.prototype = {
     }
   },
 
+  setVersion: function(version) {
+    this.version = version
+  },
+
   renderSavedGames: function() {
     if(!this.state.info) return
-    // this.checkIfCurrentVersionIsInSavedGame()
-
     this.elements.savedGamesSelector.innerHTML = ''
 
     var option = document.createElement('option')
@@ -89,7 +91,7 @@ UI.prototype = {
       option.setAttribute('value', game)
       option.innerText = 'Round ' + (i + 1)
 
-      if(this.state.version === game) {
+      if(this.version === game) {
         option.setAttribute('selected', '')
       }
 
@@ -112,11 +114,11 @@ UI.prototype = {
 
   setGameVersion: function(event) {
     if(event.target.value) {
-      this.state.version = event.target.value
-      localStorage.setItem('version', this.state.version)
+      this.version = event.target.value
+      localStorage.setItem('version', this.version)
       this.elements.replayRoundButton.classList.remove('replay--hidden')
     } else {
-      this.state.version = null
+      this.version = null
       localStorage.removeItem('version')
       this.elements.replayRoundButton.classList.add('replay--hidden')
     }
