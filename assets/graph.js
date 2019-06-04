@@ -18,27 +18,29 @@ var Graph = function (rootElement, model) {
   }
   this.settings.lineGraph = {
     top: 150,
-    bottom: this.settings.container.height - 300,
-    left: 100,
-    right: this.settings.container.width - 100,
-    height: this.settings.container.height - 450,
-    width: this.settings.container.width - 200
+    bottom: (this.settings.container.height *.85) - 70,
+    height: (this.settings.container.height *.85) - 150 - 70,
+    left: 70,
+    right: (this.settings.container.width / 2) - 35,
+    width: (this.settings.container.width / 2) - 70 - 35
   }
   this.settings.board = {
-    left: this.settings.lineGraph.right - 80 * 3,
-    top: this.settings.lineGraph.bottom + 30,
+    left: this.settings.lineGraph.right + 262,
+    top: this.settings.lineGraph.top,
     tileWidth: 80,
     tileHeight: 80
   }
   this.settings.percentage = {
-    left: this.settings.lineGraph.left,
-    top: this.settings.lineGraph.bottom + 100,
+    left: this.settings.lineGraph.right + 100,
+    top: this.settings.board.top + (this.settings.board.tileHeight * 3) + 89,
     circleWidth: 100,
     circleHeight: 100
   }
   this.settings.errorMessages = {
-    top: this.settings.lineGraph.top + 20,
-    left: this.settings.lineGraph.left + 20
+    left: this.settings.lineGraph.left,
+    top: this.settings.lineGraph.bottom + 45,
+    width: this.settings.lineGraph.width,
+    height: (this.settings.container.height *.15)
   }
   this.settings.colors = ['#98CD22','#F33530','#FAD718', '#0FC0EC']
 
@@ -497,24 +499,40 @@ Graph.prototype = {
     }
   },
 
-  drawGraphErrors: function() {
+  getErrorsInRound: function(roundIndex) {
+    if(roundIndex < 0) return
+
+    var errors = []
 
     for(var i=0; i < this.playerIds.length; i++) {
       var playerId = this.playerIds[i]
-      this.ctx.fillStyle = this.settings.colors[i];
+      var player = this.model[roundIndex]['player'+ playerId]
 
-      for(var j=0; j < this.currentRound.number; j++) {
-        var player = this.model[j]['player'+ playerId]
+      if(player.error) {
+        errors.push({ player: player, playerIndex: i })
+      }
+    }
 
-        if(player.error) {
-          var position ={
-            x: this.settings.lineGraph.left + this.step * (j + 1),
-            y: this.settings.lineGraph.bottom + 10 + (i * 10)
-          }
-          this.ctx.beginPath();
-          this.ctx.arc(position.x, position.y, 4, 0, 2 * Math.PI)
-          this.ctx.fill()
+    return errors
+  },
+
+  drawGraphErrors: function() {
+    for(var i=0; i < this.currentRound.number; i++) {
+      var errors = this.getErrorsInRound(i)
+
+      // Render errors
+      for(var j=0; j < errors.length; j++) {
+        var error = errors[j]
+
+        var position ={
+          x: this.settings.lineGraph.left + this.step * (i + 1),
+          y: this.settings.lineGraph.bottom + 10 + (j * 7)
         }
+
+        this.ctx.fillStyle = this.settings.colors[error.playerIndex];
+        this.ctx.beginPath();
+        this.ctx.arc(position.x, position.y, 3, 0, 2 * Math.PI)
+        this.ctx.fill()
       }
     }
   },
@@ -522,25 +540,18 @@ Graph.prototype = {
   drawErrorMessages: function() {
     if(!this.currentRound) return
 
-    var messages = []
+    var errors = this.getErrorsInRound(this.currentRound.number - 1)
+    if(errors.length === 0) return
 
-    for(var i=0; i < this.playerIds.length; i++) {
-      var playerId = this.playerIds[i]
-      var player = this.currentRound['player'+ playerId]
+    for(var i=0; i < errors.length; i++) {
+      var posX = this.settings.errorMessages.left + (i % 2 * this.settings.lineGraph.width / 2)
+      var posY = this.settings.errorMessages.top + (Math.floor(i / 2) * 50)
 
-      if(player.error) {
-        messages.push(player)
-      }
-    }
-
-
-    this.ctx.fillStyle = '#fff'
-    for(var i=0; i < messages.length; i++) {
-      var posY = this.settings.errorMessages.top + (40 * i)
+      this.ctx.fillStyle = '#fff'
       this.ctx.font = "bold 10pt Helvetica Neue";
-      this.ctx.fillText(messages[i].name + ':', this.settings.errorMessages.left, posY);
+      this.ctx.fillText(errors[i].player.name + ':', posX + 20, posY + 30);
       this.ctx.font = "10pt Helvetica Neue";
-      this.ctx.fillText(messages[i].error, this.settings.errorMessages.left, posY + 15);
+      this.ctx.fillText(errors[i].player.error, posX + 20, posY + 15 + 30);
     }
   },
 

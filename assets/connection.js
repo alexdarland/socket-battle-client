@@ -17,10 +17,12 @@ const Connection = function () {
   this.socket.on('request_simulated_game_success', this.handleRequestSimulatedGameSuccess.bind(this));
   this.socket.on('request_logic', this.handleRequestLogic.bind(this));
   this.socket.on('request_game_success', this.handleRequestGameSuccess.bind(this));
+  this.socket.on('request_saved_game_success', this.handleRequestGameSuccess.bind(this));
+  this.socket.on('user_updated', this.handleUserUpdated.bind(this));
 
   this.setId = this.setId.bind(this)
 
-  this.ui = new UI(this.state, this.requestGame.bind(this))
+  this.ui = new UI(this.state, this.requestGame.bind(this), this.send.bind(this))
 
 }
 
@@ -39,6 +41,11 @@ Connection.generateId = function() {
 }
 
 Connection.prototype = {
+
+  handleUserUpdated: function(payload) {
+    this.state.info = payload
+    this.ui.updateUI()
+  },
 
   setId: function () {
     var existingId = localStorage.getItem('persistent-key')
@@ -67,8 +74,9 @@ Connection.prototype = {
     this.state.info = payload.user
     this.state.isDebug = payload.isDebug
     this.ui.updateInfo()
+    this.ui.loadVersion()
 
-    this.socket.emit('request_game', { userIds: [info.id] })
+    this.requestGame()
   },
 
   handleRequestGameSuccess: function(payload) {
@@ -92,21 +100,24 @@ Connection.prototype = {
   },
 
   requestGame: function () {
-    this.socket.emit('request_game', { userIds: [info.id] })
+    if(this.state.version) {
+      this.socket.emit('request_saved_game', { gameId: this.state.version, logic: logic.toString() })
+    } else {
+      this.socket.emit('request_game', { userIds: [info.id] })
+    }
   },
 
   handleRequestSimulatedGameSuccess: function (payload) {
     this.state.simulatedGame = localSimulation.simulate(this.state.info, payload)
     this.ui.renderSimulatedGame()
+  },
+
+  send: function (event, payload) {
+    this.socket.emit(event, payload)
   }
 }
 
 new Connection()
-
-
-
-
-
 
 
 

@@ -316,8 +316,9 @@ body {
 .simulate-button {
   position: absolute;
   z-index: 2;
-  bottom: 300px;
-  right: 100px;
+  bottom: 245px;
+  left: calc(50% - 35px);
+  transform: translateX(-100%);
   padding: 10px 15px;
   line-height: 1em;
   border: none;
@@ -325,6 +326,8 @@ body {
   cursor: pointer;
   background: transparent;
   transition: background-color .3s ease;
+  color: white;
+  vertical-align: middle;
 }
 
 .simulate-button:hover {
@@ -337,6 +340,10 @@ body {
 
 .simulate-button--hidden {
   display: none;
+}
+
+.simulate-button svg {
+  vertical-align: middle;
 }
 
 .header {
@@ -386,4 +393,12 @@ body {
 .logo-wrapper:after {
   right: -10px;
   transform: skewX(-15deg);
+}
+
+.replay {
+  display: inline-block;
+}
+
+.replay--hidden {
+  display: none;
 }

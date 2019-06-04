@@ -1,30 +1,67 @@
-var UI = function (state, requestGame) {
+var UI = function (state, requestGame, send) {
   this.state = state
   this.elements = {
     connectionStatus: document.getElementById('connection-status'),
     infoTeamName: document.getElementById('info-team-name'),
     infoTeamSocket: document.getElementById('info-team-socket'),
     infoTeamMembers: document.getElementById('info-team-members'),
-    gameStatus: document.getElementById('game-status'),
     gameBoard: document.getElementById('game-board'),
     scoreBoard: document.getElementById('score-board'),
     controls: document.getElementById('controls'),
     rounds: document.getElementById('rounds'),
     simulateButton: document.getElementById('simulate-button'),
-    graph: document.getElementById('graph')
+    graph: document.getElementById('graph'),
+    savedGamesSelector: document.getElementById('saved-games-selector'),
+    replayRoundButton: document.getElementById('replay')
   }
-  this.graph = null
+  this.elements.replayRoundButton.addEventListener('click', this.replayGame.bind(this))
   this.elements.simulateButton.addEventListener('click', requestGame)
+  this.elements.savedGamesSelector.addEventListener('change', this.setGameVersion.bind(this))
+  this.requestGame = requestGame
+  this.send = send
+
+  this.version = null
 }
 
 UI.prototype = {
 
+  loadVersion: function() {
+    var version = localStorage.getItem('version')
+
+    if(this.versionExistsInSavedGames(version)) {
+      this.state.version = version
+      this.elements.replayRoundButton.classList.remove('replay--hidden')
+    } else {
+      this.state.version = null
+      localStorage.removeItem('version')
+      this.elements.replayRoundButton.classList.add('replay--hidden')
+    }
+
+    this.renderSavedGames()
+  },
+
+  versionExistsInSavedGames: function(version) {
+    for(var i=0; i < this.state.info.savedGames.length; i++) {
+      if(this.state.info.savedGames[i] === version) {
+        return true
+      }
+    }
+
+    return false
+  },
+
   updateUI: function () {
     this.updateConnectionStatus()
-    this.updateGameStatus()
     this.updateInfo()
     this.updateRounds()
     this.updateSimulateButton()
+    this.renderSavedGames()
+  },
+
+  replayGame: function() {
+    if(this.state.version) {
+      this.send('request_replay_saved_game', this.state.version)
+    }
   },
 
   updateConnectionStatus: function() {
@@ -32,6 +69,31 @@ UI.prototype = {
       this.elements.connectionStatus.classList.add('connection-status--connected')
     } else {
       this.elements.connectionStatus.classList.remove('connection-status--connected')
+    }
+  },
+
+  renderSavedGames: function() {
+    if(!this.state.info) return
+    // this.checkIfCurrentVersionIsInSavedGame()
+
+    this.elements.savedGamesSelector.innerHTML = ''
+
+    var option = document.createElement('option')
+    option.innerText = 'Default'
+    option.setAttribute('value', '')
+    this.elements.savedGamesSelector.appendChild(option)
+
+    for(var i=0; i < this.state.info.savedGames.length; i++) {
+      var game = this.state.info.savedGames[i]
+      option = document.createElement('option')
+      option.setAttribute('value', game)
+      option.innerText = 'Round ' + (i + 1)
+
+      if(this.state.version === game) {
+        option.setAttribute('selected', '')
+      }
+
+      this.elements.savedGamesSelector.appendChild(option)
     }
   },
 
@@ -48,16 +110,31 @@ UI.prototype = {
     }
   },
 
+  setGameVersion: function(event) {
+    if(event.target.value) {
+      this.state.version = event.target.value
+      localStorage.setItem('version', this.state.version)
+      this.elements.replayRoundButton.classList.remove('replay--hidden')
+    } else {
+      this.state.version = null
+      localStorage.removeItem('version')
+      this.elements.replayRoundButton.classList.add('replay--hidden')
+    }
+
+    this.requestGame()
+  },
+
   updateInfo: function () {
     if(!this.state.info) return
 
     this.elements.infoTeamName.innerHTML = this.state.info.teamName
-    // this.elements.infoTeamSocket.innerHTML = 'Socket: ' + this.state.info.socketId
     this.elements.infoTeamMembers.innerHTML = ''
 
     for(var i=0; i < this.state.info.authors.length; i++) {
       this.elements.infoTeamMembers.innerHTML += '<li>' + this.state.info.authors[i] + '</li>'
     }
+
+    this.renderSavedGames()
   },
 
   renderSimulatedGame: function () {
