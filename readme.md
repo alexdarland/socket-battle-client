@@ -50,13 +50,13 @@ const game = {
 | history[index].after  | Same format as `tiles`. Describes what the board looked like after players chose a tile |
 
 ## Server executed code
-Your algorithm will be posted to a server on which it will be executed. This means that you will not be able to log any of the object on your computer.
+Your algorithm will be posted to a server on which it will be executed. This means that you will not be able to log any of your work on your computer.
 
 Wait, what?! Can't I log my data???
+
 ![The game board](assets/img/rage.jpg)
 
 I know! This is part of the challenge, but you will get feedback in the UI if your code fails.
-This is because your logic is uploaded and executed on the server and your logs would clog the server.
 
 ## ES6
 Since your code is executed on the server you will have access to using the ES6 coding standard.
