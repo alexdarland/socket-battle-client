@@ -18,9 +18,11 @@ For a more visual example see [Super Mario Party - Air To A Fortune](https://www
 
 A game consists of 100 rounds to ensure that you have enough data to predict patterns and adjust your strategy.
 
+All players will get a randomised position on the board each round and you can only choose tiles with points beside your own tile.
+
 ## Ok, that's fine... So how do I write my algorithm?
 In the root folder of this project you will find a file called logic.js.
-It's here that you will create your magic! :D
+This is where you'll create your algorithm magic! :D
 
 The file consists of a single function and your job is to return one value - The index of the tile that you want to choose.
 To help you with this you will get som data in the form of a game object.
@@ -41,18 +43,19 @@ const game = {
 
 | Property              | Description |
 | --------------------- | ----------- |
-| playerId              | Your id |
+| playerId              | Your id which you can use to find your position |
 | tiles                 | Describes the game board. Each position in the array corresponds to a tile id on the board (first position is 0, second is 1 etc). If a tile contain points it will be a number of a random value. If the tile contains a player it will be the id of that player |
 | history               | An array of rounds that has previously been played this game |
-| history[index].before | Same format as `tiles` Describes what the board looked like before any players made a move |
-| history[index].after  | Same format as `tiles` Describes what the board looked like after players chose a tile |
+| history[index].before | Same format as `tiles`. Describes what the board looked like before any players made a move |
+| history[index].after  | Same format as `tiles`. Describes what the board looked like after players chose a tile |
 
-## No console logs
+## Server executed code
+Your algorithm will be posted to a server on which it will be executed. This means that you will not be able to log any of the object on your computer.
+
 Wait, what?! Can't I log my data???
-
 ![The game board](assets/img/rage.jpg)
 
-I know! This is part of the challange, but you will get feedback in the UI if your code fails.
+I know! This is part of the challenge, but you will get feedback in the UI if your code fails.
 This is because your logic is uploaded and executed on the server and your logs would clog the server.
 
 ## ES6

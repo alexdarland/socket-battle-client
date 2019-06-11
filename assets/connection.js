@@ -123,10 +123,10 @@ Connection.prototype = {
       ]
     })
 
-    if(result) {
+    if(/^-?\d+\.?\d*$/.test(result.toString())) {
       return true
     } else {
-      throw new Error('Your coded did not validate! :(')
+      throw new Error(result + ' is not a valid output!')
     }
   },
 
