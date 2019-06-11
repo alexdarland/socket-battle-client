@@ -5,7 +5,8 @@ const Connection = function () {
     info: null,
     game: null,
     simulatedGame: null,
-    isDebug: true
+    isDebug: true,
+    version: null
   }
 
   this.socket = io('http://alex-mbp.local')

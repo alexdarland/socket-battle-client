@@ -310,8 +310,8 @@ body {
 .simulate-button {
   position: absolute;
   z-index: 2;
-  bottom: 245px;
-  left: calc(50% - 35px);
+  bottom: 65px;
+  left: calc(75% + 15px);
   transform: translateX(-100%);
   padding: 10px 15px;
   line-height: 1em;
