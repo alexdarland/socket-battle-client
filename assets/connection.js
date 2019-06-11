@@ -82,6 +82,7 @@ Connection.prototype = {
 
   handleRequestGameSuccess: function(payload) {
     this.ui.renderGame(payload)
+    console.log(payload)
   },
 
   handleRequestLogic: function(payload) {

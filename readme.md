@@ -17,32 +17,14 @@ For a more visual example see [Super Mario Party - Air To A Fortune](https://www
 ## Payload
 ```js
 const game = {
-    number: 100,
-    tiles: [ 3, 'C', 4, 'D', 7, 'A', 2, 'B', 1 ],
-    position: 5,
-    availableTiles: [ 2, 4, 8 ],
-    history: [
-        {
-            number: 1,
-            tiles: [ 1, 'A', 3, 'D', 7, 'B', 7, 'C', 4 ],
-            playerA: {
-                id: "A",
-                name: "The Hoffs",
-                position: 1,
-                availableTiles: (3) [0, 2, 4],
-                chosenTileIndex: 2,
-                pointsAwarded: 3,
-                error: null,
-                totalLosses: 0,
-                totalScore: 3,
-                totalWins: 1
-            },
-            playerB: ...,
-            playerC: ...,
-            playerD: ... 
-        },
-        ...
-    ]
+  playerId: 'A',
+  tiles:[ 4, 'C', 4, 'B', 9, 'D', 2, 'A', 2 ],
+  history:[
+    {
+      before: [ 3, 'B', 5, 'D', 3, 'C', 2, 'A', 3 ],
+      after: [ 3, '', 'B', '', 'C,D', '', 2, 'A', 3 ]
+    }
+  ]
 }
 ```
 

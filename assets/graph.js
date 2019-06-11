@@ -549,9 +549,9 @@ Graph.prototype = {
 
       this.ctx.fillStyle = '#fff'
       this.ctx.font = "bold 10pt Helvetica Neue";
-      this.ctx.fillText(errors[i].player.name + ':', posX + 20, posY + 30);
+      this.ctx.fillText(errors[i].player.name + ':', posX + 20, posY + 30, (this.settings.lineGraph.width / 2) - 20);
       this.ctx.font = "10pt Helvetica Neue";
-      this.ctx.fillText(errors[i].player.error, posX + 20, posY + 15 + 30);
+      this.ctx.fillText(errors[i].player.error, posX + 20, posY + 15 + 30, (this.settings.lineGraph.width / 2) - 20);
     }
   },
 

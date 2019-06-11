@@ -19,8 +19,7 @@ body {
 /* ***************** */
 
 .connection-status {
-  display: flex;
-  align-items: center;
+  display: inline-block;
 }
 
 .connection-status:before {
@@ -28,7 +27,7 @@ body {
   display: inline-block;
   width: 20px;
   height: 20px;
-  margin-right: 10px;
+  left-right: 10px;
   border-radius: 50%;
   background: grey;
   box-shadow:
@@ -37,16 +36,8 @@ body {
     0 1px 1px rgba(255,255,255,0.9);
 }
 
-.connection-status:after {
-  content: "Disconnected";
-}
-
 .connection-status--connected:before {
   background: green;
-}
-
-.connection-status--connected:after {
-  content: "Connected";
 }
 
 /* ***** */
@@ -124,8 +115,11 @@ body {
 }
 
 .info__name {
+  display: inline-block;
+  vertical-align: middle;
   font-weight: bold;
   margin-bottom: 10px;
+  margin-right: 10px;
 }
 
 .info__members {
