@@ -102,10 +102,31 @@ Connection.prototype = {
   },
 
   requestGame: function () {
+    if(!this.validateLogic()) { return }
+
     if(this.state.version) {
       this.socket.emit('request_saved_game', { gameId: this.state.version, logic: logic.toString() })
     } else {
       this.socket.emit('request_game', { userIds: [info.id] })
+    }
+  },
+
+  validateLogic: function() {
+    var result = logic({
+      playerId: 'A',
+      tiles:[ 4, 'C', 4, 'B', 9, 'D', 2, 'A', 2 ],
+      history:[
+        {
+          before: [ 3, 'B', 5, 'D', 3, 'C', 2, 'A', 3 ],
+          after: [ 3, '', 'B', '', 'C,D', '', 2, 'A', 3 ]
+        }
+      ]
+    })
+
+    if(result) {
+      return true
+    } else {
+      throw new Error('Your coded did not validate! :(')
     }
   },
 

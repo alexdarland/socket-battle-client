@@ -52,4 +52,9 @@ Wait, what?! Can't I log my data???
 
 ![The game board](assets/img/rage.jpg)
 
-I know! This is part of the challange, but you will get feedback in the UI if your code fails. This is because your logic is uploaded and executed on the server.
+I know! This is part of the challange, but you will get feedback in the UI if your code fails.
+This is because your logic is uploaded and executed on the server and your logs would clog the server.
+
+## ES6
+Since your code is executed on the server you will have access to using the ES6 coding standard.
+This should make it easier to loop and select in that history array!
