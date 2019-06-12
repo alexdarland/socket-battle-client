@@ -49,15 +49,11 @@ const game = {
 | history[index].before | Same format as `tiles`. Describes what the board looked like before any players made a move |
 | history[index].after  | Same format as `tiles`. Describes what the board looked like after players chose a tile |
 
-## Server executed code
-Your algorithm will be posted to a server on which it will be executed. This means that you will not be able to log any of your work on your computer.
+## Console logging
+Your algorithm will be posted to a server on which it will be executed. If you use console logs in your algorithm it would print to the server and potentially harm the environment. To prevent this from happening we will not run your code if we find console logs in your algorithm.
 
 Wait, what?! Can't I log my data???
 
 ![The game board](assets/img/rage.jpg)
 
-I know! This is part of the challenge, but you will get feedback in the UI if your code fails.
-
-## ES6
-Since your code is executed on the server you will have access to using the ES6 coding standard.
-This should make it easier to loop and select in that history array!
+Don't worry! We have set up a mock round for you to work with. If you log you will see output in your console, but this will need to be removed if you want to score points. 
