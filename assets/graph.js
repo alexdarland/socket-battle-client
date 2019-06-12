@@ -330,7 +330,7 @@ Graph.prototype = {
       this.ctx.fillStyle = '#333';
       this.ctx.font = "bold 12pt Helvetica Neue";
       this.ctx.textAlign = "center"
-      this.ctx.fillText(this.playerIds[i], playerTileCenter.x, playerTileCenter.y + 5);
+      this.ctx.fillText(this.playerIds[i], playerTileCenter.x, playerTileCenter.y + 6);
     }
   },
 
