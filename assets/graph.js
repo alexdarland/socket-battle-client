@@ -281,27 +281,30 @@ Graph.prototype = {
       this.ctx.textAlign = "left"
       this.ctx.fillText(i, posX + 10, posY + 20);
 
+      var centerX = posX + (this.settings.board.tileWidth / 2)
+      var centerY = posY + (this.settings.board.tileHeight / 2)
+
       if(tileIsPlayer) {
         var colorIndex = value === 'A' ? 0 : value === 'B' ? 1 : value === 'C' ? 2 : 3
         this.ctx.fillStyle = this.settings.colors[colorIndex];
         this.ctx.beginPath();
-        this.ctx.arc(posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2), this.settings.board.tileHeight / 4, 0, 2 * Math.PI)
+        this.ctx.arc(centerX, centerY, this.settings.board.tileHeight / 4, 0, 2 * Math.PI)
         this.ctx.fill()
       } else {
         this.ctx.textAlign = "center";
         this.ctx.textBaseline
         this.ctx.fillStyle = '#ebebeb';
-        this.ctx.fillText(value, posX + (this.settings.board.tileWidth / 2), posY + (this.settings.board.tileHeight / 2));
+        this.ctx.fillText(value, centerX, centerY);
       }
     }
 
     for(var i=0; i < this.playerIds.length; i++) {
       var player = this.currentRound['player' + this.playerIds[i]]
 
-      if(!player.error) {
-        var playerTileCenter = this.getTileCenterOnBoard(player.position)
-        var chosenTileCenter = this.getTileCenterOnBoard(player.chosenTileIndex)
+      var playerTileCenter = this.getTileCenterOnBoard(player.position)
+      var chosenTileCenter = this.getTileCenterOnBoard(player.chosenTileIndex)
 
+      if(!player.error) {
         this.ctx.fillStyle = this.settings.colors[i];
 
         var delta = {
@@ -323,6 +326,11 @@ Graph.prototype = {
 
         this.drawArrowhead(this.ctx, { x: playerTileCenter.x, y: playerTileCenter.y }, delta, 12)
       }
+
+      this.ctx.fillStyle = '#333';
+      this.ctx.font = "bold 12pt Helvetica Neue";
+      this.ctx.textAlign = "center"
+      this.ctx.fillText(this.playerIds[i], playerTileCenter.x, playerTileCenter.y + 5);
     }
   },
 
@@ -371,7 +379,7 @@ Graph.prototype = {
       this.ctx.fillText('Win rate', position.x + (this.settings.percentage.circleWidth / 2), position.y + 20);
 
       this.ctx.font = "bold 12pt Helvetica Neue";
-      this.ctx.fillText(player.name, position.x + (this.settings.percentage.circleWidth / 2), this.settings.percentage.top - 20);
+      this.ctx.fillText(this.playerIds[i] + ': ' + player.name, position.x + (this.settings.percentage.circleWidth / 2), this.settings.percentage.top - 20);
 
       this.ctx.font = "10pt Helvetica Neue";
 
