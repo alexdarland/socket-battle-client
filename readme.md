@@ -49,11 +49,6 @@ const game = {
 | history[index].before | Same format as `tiles`. Describes what the board looked like before any players made a move |
 | history[index].after  | Same format as `tiles`. Describes what the board looked like after players chose a tile |
 
-## Console logging
-Your algorithm will be posted to a server on which it will be executed. If you use console logs in your algorithm it would print to the server and potentially harm the environment. To prevent this from happening we will not run your code if we find console logs in your algorithm.
-
-Wait, what?! Can't I log my data???
-
-![The game board](assets/img/rage.jpg)
-
-Don't worry! We have set up a mock round for you to work with. If you log you will see output in your console, but this will need to be removed if you want to score points. 
+## Console logging 
+Your algorithm is actually uploaded to a server on which it is executed. Having everyones console logging on the server would cause problems, so we have removed this possibility.
+We still want you to be able to log you algorithm and have therefore created a mock round on your computer so you can check your output, but it will not reflect any round in the game being played.
