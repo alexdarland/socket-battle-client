@@ -83,7 +83,6 @@ Connection.prototype = {
 
   handleRequestGameSuccess: function(payload) {
     this.ui.renderGame(payload)
-    console.log(payload)
   },
 
   handleRequestLogic: function(payload) {
@@ -113,16 +112,7 @@ Connection.prototype = {
   },
 
   validateLogic: function() {
-    var result = logic({
-      playerId: 'A',
-      tiles:[ 4, 'C', 4, 'B', 9, 'D', 2, 'A', 2 ],
-      history:[
-        {
-          before: [ 3, 'B', 5, 'D', 3, 'C', 2, 'A', 3 ],
-          after: [ 3, '', 'B', '', 'C,D', '', 2, 'A', 3 ]
-        }
-      ]
-    })
+    var result = logic(mockGame)
 
     if(/^-?\d+\.?\d*$/.test(result.toString())) {
       return true
