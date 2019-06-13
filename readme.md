@@ -16,7 +16,7 @@ On all other tiles are points in varying amount that players can take. But there
 Your task is to write an AI that predicts patterns of how your opponents play to maximise your own score.
 For a more visual example see [Super Mario Party - Air To A Fortune](https://www.youtube.com/watch?v=zP8WrEG_aVU) ;)
 
-A game consists of 100 rounds to ensure that you have enough data to predict patterns and adjust your strategy.
+A game consists of 300 rounds to ensure that you have enough data to predict patterns and adjust your strategy.
 
 All players will get a randomised position on the board each round and you can only choose tiles with points beside your own tile.
 
