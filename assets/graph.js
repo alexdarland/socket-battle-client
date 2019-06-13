@@ -61,6 +61,7 @@ Graph.prototype = {
     var _this = this
     var counter = 0
     var interval = null
+    var tick = 4000 / this.model.length
 
     var stop = function() {
       clearInterval(interval)
@@ -89,7 +90,7 @@ Graph.prototype = {
       if(counter === _this.model.length) {
         stop()
       }
-    }, 30)
+    }, tick)
   },
 
   scaleCanvas: function() {
@@ -410,6 +411,12 @@ Graph.prototype = {
           'Points mode: ' + text,
           position.x + (this.settings.percentage.circleWidth / 2),
           this.settings.percentage.top + this.settings.percentage.circleHeight + 30
+      )
+
+      this.ctx.fillText(
+        'Score: ' + player.totalScore,
+        position.x + (this.settings.percentage.circleWidth / 2),
+        this.settings.percentage.top + this.settings.percentage.circleHeight + 50
       )
     }
   },
