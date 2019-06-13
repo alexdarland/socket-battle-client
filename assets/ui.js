@@ -9,13 +9,11 @@ var UI = function (state, requestGame, send) {
     scoreBoard: document.getElementById('score-board'),
     controls: document.getElementById('controls'),
     rounds: document.getElementById('rounds'),
-    simulateButton: document.getElementById('simulate-button'),
     graph: document.getElementById('graph'),
     savedGamesSelector: document.getElementById('saved-games-selector'),
     replayRoundButton: document.getElementById('replay')
   }
   this.elements.replayRoundButton.addEventListener('click', this.replayGame.bind(this))
-  this.elements.simulateButton.addEventListener('click', requestGame)
   this.elements.savedGamesSelector.addEventListener('change', this.setGameVersion.bind(this))
   this.requestGame = requestGame
   this.send = send
@@ -54,7 +52,6 @@ UI.prototype = {
     this.updateConnectionStatus()
     this.updateInfo()
     this.updateRounds()
-    this.updateSimulateButton()
     this.renderSavedGames()
   },
 
@@ -152,13 +149,5 @@ UI.prototype = {
   clearGraph: function() {
     this.graph = null
     this.elements.graph.innerHTML = ''
-  },
-
-  updateSimulateButton: function () {
-    if(this.state.isDebug) {
-      this.elements.simulateButton.classList.remove('simulate-button--hidden')
-    } else {
-      this.elements.simulateButton.classList.add('simulate-button--hidden')
-    }
   }
 }
