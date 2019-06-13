@@ -18,8 +18,6 @@ For a more visual example see [Super Mario Party - Air To A Fortune](https://www
 
 A game consists of 300 rounds to ensure that you have enough data to predict patterns and adjust your strategy.
 
-All players will get a randomised position on the board each round and you can only choose tiles with points beside your own tile.
-
 ## Ok, that's fine... So how do I write my algorithm?
 In the root folder of this project you will find a file called logic.js.
 This is where you'll create your algorithm magic! :D
